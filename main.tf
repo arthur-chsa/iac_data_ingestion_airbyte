@@ -10,9 +10,13 @@ resource "airbyte_source_mysql" "sources" {
     database = each.value.database
     username = each.value.username
     password = each.value.password
-    ssl_mode = each.value.ssl_mode != "disabled" ? {
-      mode = each.value.ssl_mode
-    } : null
+    ssl_mode = (
+      each.value.ssl_mode == "required" ? { required = {} } :
+      each.value.ssl_mode == "preferred" ? { preferred = {} } :
+      each.value.ssl_mode == "verify_ca" ? { verify_ca = {} } :
+      each.value.ssl_mode == "verify_identity" ? { verify_identity = {} } :
+      { disabled = {} }
+    )
     replication_method = {
       scan_changes_with_user_defined_cursor = {}
     }
